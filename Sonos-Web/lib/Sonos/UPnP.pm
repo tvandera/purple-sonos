@@ -55,7 +55,7 @@ sub DESTROY
     }
 }
 
-sub processZoneGroupState ( $player, $properties ) {
+sub processZoneGroupState ( $self, $properties ) {
     INFO "Found ZoneGroup: ";
     DEBUG "\$properties = ", Dumper($properties);
     DEBUG Dumper( $properties->{"ZoneGroupState"} );
@@ -77,7 +77,7 @@ sub processZoneGroupState ( $player, $properties ) {
     }
 }
 
-sub processThirdPartyMediaServers ( $player, $properties ) {
+sub processThirdPartyMediaServers ( $self, $properties ) {
     my %mapping = (
         "SA_RINCON1_" => "Rhapsody",
         "SA_RINCON4_" => "Pandora",
@@ -95,7 +95,7 @@ sub processThirdPartyMediaServers ( $player, $properties ) {
     }
 }
 
-sub processRenderingControl ( $player, $properties ) {
+sub processRenderingControl ( $self, $properties ) {
     my $tree = XMLin(
         decode_entities( $properties->{LastChange} ),
         forcearray => ["ZoneGroup"],
