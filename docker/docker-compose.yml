@@ -3,7 +3,7 @@ services:
     build:
       context: ../perl
       dockerfile: ../docker/Dockerfile
-    image: purplesonosweb:latest
+    image: purple-sonos:latest
     # Host networking is required for Sonos SSDP discovery; the web UI is on port 9999.
     network_mode: host
     restart: unless-stopped

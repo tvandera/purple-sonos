@@ -18,6 +18,8 @@ RUN PERL5LIB=/opt/sonos/lib/perl5 perl Makefile.PL INSTALL_BASE=/opt/sonos && \
 
 FROM perl:5.40-slim
 
+LABEL org.opencontainers.image.source="https://github.com/tvandera/purple-sonos"
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends libgd3 libxml2 locales shared-mime-info && \
     echo 'en_US.UTF-8 UTF-8' >>/etc/locale.gen && \

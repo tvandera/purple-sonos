@@ -18,17 +18,26 @@ Building for a Raspberry Pi from a non-ARM machine needs `docker buildx` with QE
 
 | Target | Description |
 | --- | --- |
-| `make build` | Build `purplesonosweb:latest` for the local machine's architecture |
-| `make build-pi` | Build `purplesonosweb:latest` for `PI_PLATFORM` and load it locally |
-| `make save-pi` | Build, then write `purplesonosweb-pi.tar` for `docker load` on the Pi |
+| `make build` | Build `purple-sonos:latest` for the local machine's architecture |
+| `make build-arm64` / `make build-x86_64` | Build local images tagged `latest-arm64` / `latest-x86_64` |
+| `make build-all` | Build local images for both architectures |
+| `make build-pi` | Build `purple-sonos:latest` for `PI_PLATFORM` and load it locally |
+| `make save-pi` | Build, then write `purple-sonos-pi.tar` for `docker load` on the Pi |
+| `make run-arm64` / `make run-x86_64` | Run the matching local architecture image |
+| `make run-all` | Run the published multi-architecture image for the host's architecture |
 | `make run-pi` | Run the image with host networking and a persistent cache volume |
-| `make push` | Build and push to `ghcr.io/tvandera/purplesonosweb` |
+| `make push` | Build and push to `ghcr.io/tvandera/purple-sonos` |
+| `make push-arm64` / `make push-x86_64` | Push architecture-specific tags |
+| `make push-all` | Build and push one multi-architecture tag for ARM64 and x86_64 |
 
 Variables:
 
 - `PI_PLATFORM`: `linux/arm64` by default (Pi 3/4/5 on a 64-bit OS). Use `linux/arm/v7` for 32-bit Raspberry Pi OS.
 - `SONOS_TAG`: image tag, `latest` by default.
-- `SONOS_REGISTRY_IMAGE`: registry image name used by `push`.
+- `SONOS_REGISTRY_IMAGE`: `ghcr.io/tvandera/purple-sonos` by default.
+- `SONOS_ARM64_TAG` and `SONOS_X86_64_TAG`: architecture-specific tags, defaulting to `$(SONOS_TAG)-arm64` and `$(SONOS_TAG)-x86_64`.
+
+`build-all` loads two separately tagged images into the local Docker image store. `push-all` publishes a multi-architecture manifest under `SONOS_TAG`. Running a non-native architecture with `run-arm64` or `run-x86_64` requires Docker emulation support; `run-all` uses the architecture selected by Docker for the current host.
 
 ## Running
 
@@ -42,9 +51,9 @@ make run-pi               # run a built image
 On the Pi, pull the pushed image instead of building:
 
 ```sh
-docker run -d --network host --restart unless-stopped \
+`docker run -d --network host --restart unless-stopped \
 	--mount type=volume,source=purplesonosweb-cache,target=/home/sonos/.cache/purplesonosweb \
-	ghcr.io/tvandera/purplesonosweb:latest
+	ghcr.io/tvandera/purple-sonos:latest
 ```
 
 Compose, `make run-pi`, and the command above share the named Docker volume
@@ -69,6 +78,6 @@ gh auth login --scopes write:packages    # or: gh auth refresh -s write:packages
 gh auth token | docker login ghcr.io -u tvandera --password-stdin
 make push
 ```
-Run the Make targets from this directory. Running `make` builds `purplesonosweb:latest`.
+Run the Make targets from this directory. Running `make` builds `purple-sonos:latest`.
 The production image uses `../perl/` as its build context.
 
