@@ -41,5 +41,7 @@ inc/
 /MANIFEST.bak
 /pm_to_blib
 /perl/pm_to_blib
+/tests/legacy-browser/*.iso
+/tests/legacy-browser/*.qcow2
 /*.zip
 .direnv

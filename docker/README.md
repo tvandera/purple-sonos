@@ -1,10 +1,10 @@
 # Docker
 
-Production container for the Sonos web app (`perl/scripts/sonod`, port 9999), plus a legacy-browser test VM.
+Production container for the Sonos web app (`perl/scripts/sonod`, port 9999).
 
 ## Setup
 
-`nix develop` (or direnv) in this directory provides `docker`, `docker-compose`, `gh`, `make` and `qemu`.
+Use Docker Compose and GNU Make to build and run the production container.
 
 Building for a Raspberry Pi from a non-ARM machine needs `docker buildx` with QEMU/binfmt emulation.
 
@@ -69,7 +69,6 @@ gh auth login --scopes write:packages    # or: gh auth refresh -s write:packages
 gh auth token | docker login ghcr.io -u tvandera --password-stdin
 make push
 ```
+Run the Make targets from this directory. Running `make` builds `purplesonosweb:latest`.
+The production image uses `../perl/` as its build context.
 
-## Legacy browser (Android 4.4)
-
-`make install` and `make run` boot an Android x86 4.4 VM under QEMU. `make start-legacy-browser` and `make stop-legacy-browser` run a containerised legacy browser for testing the UI.
