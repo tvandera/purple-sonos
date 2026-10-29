@@ -21,7 +21,7 @@ Building for a Raspberry Pi from a non-ARM machine needs `docker buildx` with QE
 | `make build` | Build `purplesonosweb:latest` for the local machine's architecture |
 | `make build-pi` | Build `purplesonosweb:latest` for `PI_PLATFORM` and load it locally |
 | `make save-pi` | Build, then write `purplesonosweb-pi.tar` for `docker load` on the Pi |
-| `make run-pi` | Run the image with `--network host` |
+| `make run-pi` | Run the image with host networking and a persistent cache volume |
 | `make push` | Build and push to `ghcr.io/tvandera/purplesonosweb` |
 
 Variables:
@@ -42,10 +42,23 @@ make run-pi               # run a built image
 On the Pi, pull the pushed image instead of building:
 
 ```sh
-docker run -d --network host --restart unless-stopped ghcr.io/tvandera/purplesonosweb:latest
+docker run -d --network host --restart unless-stopped \
+	--mount type=volume,source=purplesonosweb-cache,target=/home/sonos/.cache/purplesonosweb \
+	ghcr.io/tvandera/purplesonosweb:latest
 ```
 
-The JSON and album-art caches are not stored in a volume, so they are lost when the container is removed.
+Compose, `make run-pi`, and the command above share the named Docker volume
+`purplesonosweb-cache`. It stores the content and location JSON caches, the
+album-art JSON index, and the album-art image files under
+`/home/sonos/.cache/purplesonosweb` (`XDG_CACHE_HOME=/home/sonos/.cache`).
+The volume survives container removal, recreation, and image rebuilds, including
+`docker compose down`. Do not use `docker compose down -v` or remove the volume
+unless you intend to clear these caches.
+
+Existing caches in an old container are not migrated automatically. Before
+removing that container, copy `/home/sonos/.cache/purplesonosweb` out with
+`docker cp` if you need to preserve them, then restore them into the volume
+with ownership matching the image's `sonos` user.
 
 ## Pushing to GitHub Container Registry
 
