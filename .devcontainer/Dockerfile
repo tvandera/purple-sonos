@@ -1,10 +1,14 @@
 # Use the official Perl image
 FROM perl:latest
 
-# Install Carton and build tools
-RUN cpanm --notest Carton && \
-    apt-get update && \
-    apt-get install -y build-essential libgd-dev locales && \
+# Install cpm, Carton, and build tools
+ARG CPM_VERSION=1.1.6
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends build-essential curl libgd-dev locales && \
+    curl -fsSL "https://github.com/skaji/cpm/releases/download/v${CPM_VERSION}/cpm" \
+        -o /usr/local/bin/cpm && \
+    chmod +x /usr/local/bin/cpm && \
+    cpm install --global Carton && \
     echo en_US.UTF-8 >>/etc/locale.gen && \
     locale-gen
 

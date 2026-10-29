@@ -2,15 +2,20 @@
 FROM perl:5.40 AS builder
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends build-essential libgd-dev libxml2-dev && \
+    apt-get install -y --no-install-recommends build-essential curl libgd-dev libxml2-dev && \
     rm -rf /var/lib/apt/lists/*
+
+ARG CPM_VERSION=1.1.6
+RUN curl -fsSL "https://github.com/skaji/cpm/releases/download/v${CPM_VERSION}/cpm" \
+        -o /usr/local/bin/cpm && \
+    chmod +x /usr/local/bin/cpm
 
 WORKDIR /src
 COPY cpanfile ./
-RUN --mount=type=cache,target=/root/.cpanm \
-    cpanm --notest --local-lib=/opt/sonos \
+RUN --mount=type=cache,target=/root/.cache/cpm \
+    cpm install --home=/root/.cache/cpm --local-lib-contained=/opt/sonos \
         https://github.com/tvandera/perlupnp/archive/refs/tags/v0.5.tar.gz && \
-    cpanm --notest --local-lib=/opt/sonos --installdeps /src
+    cpm install --home=/root/.cache/cpm --local-lib-contained=/opt/sonos
 
 COPY . .
 RUN PERL5LIB=/opt/sonos/lib/perl5 perl Makefile.PL INSTALL_BASE=/opt/sonos && \
