@@ -7,3 +7,9 @@ services:
     # Host networking is required for Sonos SSDP discovery; the web UI is on port 9999.
     network_mode: host
     restart: unless-stopped
+    volumes:
+      - sonos-cache:/home/sonos/.cache/purplesonosweb
+
+volumes:
+  sonos-cache:
+    name: purplesonosweb-cache

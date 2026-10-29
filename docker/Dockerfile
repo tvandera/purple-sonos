@@ -26,13 +26,15 @@ RUN apt-get update && \
     useradd --system --create-home --shell /usr/sbin/nologin sonos
 
 ENV LANG=en_US.UTF-8 \
+    XDG_CACHE_HOME=/home/sonos/.cache \
     PERL5LIB=/opt/sonos/lib/perl5 \
     PATH=/opt/sonos/bin:$PATH
 
 WORKDIR /opt/sonos
 COPY --from=builder /opt/sonos /opt/sonos
 
-RUN chown -R sonos:sonos /opt/sonos
+RUN mkdir -p /home/sonos/.cache/purplesonosweb && \
+    chown -R sonos:sonos /opt/sonos /home/sonos/.cache
 USER sonos
 
 # Sonos discovery uses SSDP multicast, so run with --network host.

@@ -45,7 +45,9 @@ save-pi: build-pi
 
 # Run on the Pi itself; host networking is required for Sonos discovery.
 run-pi:
-	docker run --rm --network host $(SONOS_IMAGE):$(SONOS_TAG)
+	docker run --rm --network host \
+		--mount type=volume,source=purplesonosweb-cache,target=/home/sonos/.cache/purplesonosweb \
+		$(SONOS_IMAGE):$(SONOS_TAG)
 
 start-sonos-web:
 	docker-compose up --build --detach
