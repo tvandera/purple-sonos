@@ -85,6 +85,14 @@ function initialize() {
         window.location.replace("index.html?" + default_zone_arg + music_arg);
         return;
     }
+
+    var hasZone = Boolean(zone_arg);
+    document.getElementById("no-zone").style.display = hasZone ? "none" : "block";
+    var controls = ["current-track-info", "control", "mute", "volumes", "queueicon"];
+    for (var i = 0; i < controls.length; i++) {
+        document.getElementById(controls[i]).style.display = hasZone ? "" : "none";
+    }
+
     update();
 }
 

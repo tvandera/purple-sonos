@@ -1,33 +1,30 @@
 <section id="playing">
-    [% IF url.values.zone %]
-        <div id="current-track-info">
-        <img class="albumart" id="albumart" [% IF player.av.albumart %] src="[% player.av.albumart %]" [% ELSE %] src="tiles/missingaa_lite.svg" [% END %]>
-            <label id="info"></label>
-        </div>
+    <p id="no-zone" style="display: none;">Select a zone to show playback controls.</p>
+    <div class="playback-control" id="current-track-info" style="display: none;">
+        <img class="albumart" id="albumart" src="tiles/missingaa_lite.svg">
+        <label id="info"></label>
+    </div>
 
-        <div id="control">
-            <img onclick="send('Previous');" src="svg/prev.svg" id="previous">
-        <img onclick="send('Pause');" src="svg/pause.svg" id="pause" [% UNLESS player.av.transport_state == 'PLAYING' %] style="display: none;" [% END %]>
-        <img onclick="send('Start');" src="svg/play.svg" id="play" [% IF player.av.transport_state == 'PLAYING' %] style="display: none;" [% END %]>
-            <img onclick="send('Next');" src="svg/next.svg" id="next">
-        </div>
+    <div class="playback-control" id="control" style="display: none;">
+        <img onclick="send('Previous');" src="svg/prev.svg" id="previous">
+        <img onclick="send('Pause');" src="svg/pause.svg" id="pause" style="display: none;">
+        <img onclick="send('Start');" src="svg/play.svg" id="play">
+        <img onclick="send('Next');" src="svg/next.svg" id="next">
+    </div>
 
-        <div id="mute">
-        <img onclick="send('MuteOn');" src="svg/mute_off.svg" id="muteon" [% IF player.render.muted %] style="display: none;" [% END %]>
-        <img onclick="send('MuteOff');" src="svg/mute_on.svg" id="muteoff" [% UNLESS player.render.muted %] style="display: none;" [% END %]>
-        </div>
+    <div class="playback-control" id="mute" style="display: none;">
+        <img onclick="send('MuteOn');" src="svg/mute_off.svg" id="muteon">
+        <img onclick="send('MuteOff');" src="svg/mute_on.svg" id="muteoff" style="display: none;">
+    </div>
 
-        <div id="volumes">
-            <img onclick="softer();" src="svg/minus.svg" id="muchsofter">
-            <label id="volume">[% player.render.volume %]%</label>
-            <img onclick="louder();" src="svg/plus.svg" id="muchlouder">
-        </div>
+    <div class="playback-control" id="volumes" style="display: none;">
+        <img onclick="softer();" src="svg/minus.svg" id="muchsofter">
+        <label id="volume"></label>
+        <img onclick="louder();" src="svg/plus.svg" id="muchlouder">
+    </div>
 
-        <button type="button" id="queueicon" onclick="toggleQueue();" aria-label="Toggle queue">
-            <img src="svg/queue.png" alt="">
-        </button>
+    <button class="playback-control" type="button" id="queueicon" onclick="toggleQueue();" aria-label="Toggle queue" style="display: none;">
+        <img src="svg/queue.png" alt="">
+    </button>
 
-    </section>
-[% ELSE %]
-    <p>Select a zone to show playback controls.</p>
-[% END %]
+</section>
