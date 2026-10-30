@@ -136,16 +136,18 @@ function play(music_arg) { sendAndGo("play&" + music_arg, "playing");  }
 function add(music_arg) { sendAndGo("add&" + music_arg, "playing"); }
 
 function softer() {
-    send('MuchSofter');
+    if (!zone_info || !zone_info.render) return;
     zone_info.render.volume -= 5;
     if (zone_info.render.volume < 0) zone_info.render.volume = 0;
+    send('SetVolume&volume=' + zone_info.render.volume);
     updateText("volume", "" + zone_info.render.volume + "%");
 }
 
 function louder() {
-    send('MuchLouder');
-    zone_info.render.volume += 5;
+    if (!zone_info || !zone_info.render) return;
+    zone_info.render.volume = Number(zone_info.render.volume) + 5;
     if (zone_info.render.volume > 100) zone_info.render.volume = 100;
+    send('SetVolume&volume=' + zone_info.render.volume);
     updateText("volume", "" + zone_info.render.volume + "%");
 }
 
