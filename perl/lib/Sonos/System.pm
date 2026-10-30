@@ -79,17 +79,19 @@ sub version($self) {
 sub TO_JSON( $self, $qf ) {
     my $player_info = {};
     my $player      = 0;
+    my $default_zone = $self->defaultPlayer()->zoneName();
     if ( $qf->{"zone"} ) {
         $player      = $self->player( $qf->{"zone"} );
         $player_info = $player->TO_JSON(1);
     }
 
     return {
-        "version"     => $self->version(),
-        "last_update" => $self->lastUpdate(),
-        "players"     => [ map { $_->TO_JSON( $player == $_ ) } $self->players() ],
-        "player"      => $player_info,
-        "music"       => $self->musicLibrary()->TO_JSON($qf),
+        "version"      => $self->version(),
+        "last_update"  => $self->lastUpdate(),
+        "players"      => [ map { $_->TO_JSON( $player == $_ ) } $self->players() ],
+        "player"       => $player_info,
+        "default_zone" => $default_zone,
+        "music"        => $self->musicLibrary()->TO_JSON($qf),
     };
 }
 
@@ -97,6 +99,11 @@ sub players($self) {
     my @players = values %{ $self->{_players} };
     @players = sort { $a->cmp($b) } @players;
     return @players;
+}
+
+sub defaultPlayer($self) {
+    my ($coordinator) = grep { $_->zoneGroupTopology()->isCoordinator() } $self->players();
+    return $coordinator;
 }
 
 sub linkAllZones( $self, $coordinator ) {

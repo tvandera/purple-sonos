@@ -14,15 +14,7 @@
         var zone_arg = "[% url.args.zone %]";
         var music_arg = "[% url.args.mpath %]";
         var last_update = "[% last_update %]";
-        var default_zone_arg = "";
-        [% UNLESS url.values.zone %]
-            [% FOREACH item IN players %]
-                [% IF item.zone.is_coord %]
-                    default_zone_arg = "[% item.arg %]";
-                    [% LAST %]
-                [% END %]
-            [% END %]
-        [% END %]
+        var default_zone_arg = "[% default_zone.arg %]";
 
     </script>
     <script language="javascript">
