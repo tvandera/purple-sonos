@@ -10,6 +10,7 @@ in
 pkgs.mkShell {
   buildInputs = [
     (pkgs.perl.withPackages (_: depsOnly))
+    pkgs.nodejs
   ];
 
   shellHook = ''
