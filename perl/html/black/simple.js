@@ -1,3 +1,5 @@
+// DOM updates and playback display
+// Set an element's text when its content changes.
 function updateText(name, text) {
     var element = document.getElementById(name);
     if (element && (!element.innerHTML || element.innerHTML != text)) {
@@ -5,6 +7,7 @@ function updateText(name, text) {
     }
 }
 
+// Show an image, or hide it when no source is available.
 function updateSrc(name, src) {
     var element = document.getElementById(name);
     if (!element) return;
@@ -16,11 +19,13 @@ function updateSrc(name, src) {
     }
 }
 
+// Display one of two mutually exclusive controls.
 function updateToggle(first, second, doFirst) {
     document.getElementById(first).style.display = (doFirst ? "inline" : "none");
     document.getElementById(second).style.display = (doFirst ? "none" : "inline");
 }
 
+// Render the current track, transport, volume, and artwork.
 function drawControl() {
     var info = "";
 
@@ -29,7 +34,7 @@ function drawControl() {
     }
 
     if (zone_info.av.isradio) {
-         info += zone_info.av.current_track.stream_content + '<br>';
+        info += zone_info.av.current_track.stream_content + '<br>';
     } else if (zone_info.av.current_track) {
         if (zone_info.av.current_track.album) {
             info += "&nbsp;<em>album:</em> ";
@@ -57,6 +62,8 @@ function drawControl() {
 }
 
 
+// Navigation and view selection
+// Navigate to a section or load a URL with additional query arguments.
 function goto(base, extra) {
     if (typeof extra !== 'undefined') {
         window.location.href = 'index.html?' + zone_arg + music_arg + extra;
@@ -67,19 +74,24 @@ function goto(base, extra) {
     if (section) section.scrollIntoView();
 }
 
+// Expand or collapse the queue panel.
 function toggleQueue() {
     var queue = document.getElementById("queue");
     if (queue) queue.classList.toggle("open");
 }
 
 
+// Open the music browser for the selected query.
 function browse(music_arg) {
     window.location.href = "index.html?" + zone_arg + music_arg + "&action=Browse";
 }
+// Select a zone and preserve the current music query.
 function zone(name) {
     window.location.href = "index.html?zone=" + name + "&" + music_arg;
 }
 
+// Startup and zone refresh
+// Prepare the page for the selected zone and fetch its current state.
 function initialize() {
     if (!zone_arg && default_zone_arg) {
         window.location.replace("index.html?" + default_zone_arg + music_arg);
@@ -98,6 +110,7 @@ function initialize() {
 
 var zone_info = null;
 
+// Fetch the latest zone state and redraw the controls.
 function update() {
     if (!zone_arg) return;
 
@@ -113,6 +126,7 @@ function update() {
     );
 }
 
+// Send an API request and optionally invoke a callback on completion.
 function send(cmd, what, onload) {
     if (typeof what === "undefined") what = "none";
     if (typeof onload === "undefined") onload = null;
@@ -131,18 +145,27 @@ function send(cmd, what, onload) {
     return r;
 }
 
+// Send a command, then navigate to the requested view.
 function sendAndGo(cmd, next) {
-    r = send(cmd, "none", function() { goto(next); });
+    r = send(cmd, "none", function () { goto(next); });
 }
 
+// Playback and queue actions
+// Navigate with a queue action and optional extra query arguments.
 function queueAction(action, extra) {
     window.location.href = "index.html?" + zone_arg + "action=" + action + "&" + music_arg + (extra || "");
 }
+// Clear every item from the queue.
 function removeall() { queueAction("RemoveAll"); }
+// Seek to the supplied queue position or time.
 function seek(to) { queueAction("Seek", to); }
-function play(music_arg) { sendAndGo("play&" + music_arg, "playing");  }
+// Start playback of the selected music query.
+function play(music_arg) { sendAndGo("play&" + music_arg, "playing"); }
+// Add the selected music query to the queue and open playback.
 function add(music_arg) { sendAndGo("add&" + music_arg, "playing"); }
 
+// Volume controls
+// Lower volume by five points, clamped to the minimum.
 function softer() {
     if (!zone_info || !zone_info.render) return;
     zone_info.render.volume -= 5;
@@ -151,6 +174,7 @@ function softer() {
     updateText("volume", "" + zone_info.render.volume + "%");
 }
 
+// Raise volume by five points, clamped to the maximum.
 function louder() {
     if (!zone_info || !zone_info.render) return;
     zone_info.render.volume = Number(zone_info.render.volume) + 5;
