@@ -196,8 +196,8 @@ sub handleRequest( $self, $server, $r ) {
         return $self->sendRedirect( $r, $redirect );
     }
 
-    # File isn't HTML/XML/JSON/JS, just send it back raw
-    if ( $path !~ /\.(html|xml|js|json)$/ ) {
+    # File isn't HTML/XML/JSON, just send it back raw
+    if ( $path !~ /\.(html|xml|json)$/ ) {
         return $self->sendFileResponse( $r, $diskpath );
     }
 

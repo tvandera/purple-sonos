@@ -6,10 +6,7 @@
     <link rel="apple-touch-icon" href="favicon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable = no" />
     <title>Web SONOS Controller</title>
-    <style>
-        [% INCLUDE style.css %]
-
-    </style>
+    <link rel="stylesheet" href="style.css">
     <script>
         var zone_arg = "[% url.args.zone %]";
         var music_arg = "[% url.args.mpath %]";
@@ -17,9 +14,6 @@
         var default_zone_arg = "[% default_zone.arg %]";
 
     </script>
-    <script language="javascript">
-        [% INCLUDE simple.js %]
-
-    </script>
+    <script src="simple.js"></script>
 </head>
 <body onload='initialize();'>
