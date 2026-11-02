@@ -150,19 +150,24 @@ function sendAndGo(cmd, next) {
     r = send(cmd, "none", function () { goto(next); });
 }
 
-// Playback and queue actions
-// Navigate with a queue action and optional extra query arguments.
-function queueAction(action, extra) {
-    window.location.href = "index.html?" + zone_arg + "action=" + action + "&" + music_arg + (extra || "");
+//---
+// Queue actions
+//---
+
+// Reload with a queue action and the selected page context.
+function queueAction(action, extra, itemArg, next) {
+    var pageMusic = (typeof itemArg === "undefined") ? music_arg : itemArg;
+    var url = "index.html?" + zone_arg + "action=" + action + "&" + pageMusic + (extra || "");
+    window.location.href = url + (next ? "#" + next : "");
 }
 // Clear every item from the queue.
 function removeall() { queueAction("RemoveAll"); }
 // Seek to the supplied queue position or time.
 function seek(to) { queueAction("Seek", to); }
 // Start playback of the selected music query.
-function play(music_arg) { sendAndGo("play&" + music_arg, "playing"); }
+function play(music_arg) { queueAction("play", "", music_arg, "playing"); }
 // Add the selected music query to the queue and open playback.
-function add(music_arg) { sendAndGo("add&" + music_arg, "playing"); }
+function add(music_arg) { queueAction("add", "", music_arg, "playing"); }
 
 // Volume controls
 // Lower volume by five points, clamped to the minimum.

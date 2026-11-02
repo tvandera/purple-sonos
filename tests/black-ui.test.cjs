@@ -62,3 +62,23 @@ for (const [handler, delta] of [
         assert.deepEqual(updates, [['volume', `${limit}%`]]);
     });
 }
+
+for (const [handler, action] of [
+    ['add', 'add'],
+    ['play', 'play'],
+]) {
+    test(`${handler} reloads with the selected music query`, () => {
+        const { context, commands } = controls(null);
+        context.window = { location: { href: '' } };
+        context.zone_arg = 'zone=kitchen&';
+        context.music_arg = 'mpath=current&';
+
+        context[handler]('mpath=selected&');
+
+        assert.equal(
+            context.window.location.href,
+            `index.html?zone=kitchen&action=${action}&mpath=selected&#playing`
+        );
+        assert.deepEqual(commands, []);
+    });
+}
