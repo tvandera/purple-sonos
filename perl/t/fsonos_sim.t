@@ -34,10 +34,12 @@ Log::Log4perl->easy_init($OFF);
 
 my $original_dir = getcwd();
 my $cache_dir = tempdir( CLEANUP => 1 );
+local $ENV{XDG_CACHE_HOME} = $cache_dir;
 chdir $cache_dir or die "Cannot enter $cache_dir: $!";
 
 my ( $sim_pid, $sim_stdout, $system );
 END {
+    local $?;
     undef $system;
     if ($sim_pid) {
         kill 'TERM', $sim_pid;
@@ -82,13 +84,14 @@ my $loop = IO::Async::Loop::Select->new;
 }
 
 is( $system->numPlayers(), 1, 'loads the simulator device description as one player' );
-my $player = $system->player( $sim_player->{room} );
+my ($player) = $system->players();
 BAIL_OUT('simulator player was not registered') unless $player;
 
 $deadline = time + 5;
-while ( !$player->zoneGroupTopology()->haveZoneInfo() && time < $deadline ) {
+while ( !$player->populated() && time < $deadline ) {
     $loop->loop_once(0.1);
 }
+ok( $player->populated(), 'receives initial state for all player services' );
 ok( $player->zoneGroupTopology()->haveZoneInfo(), 'receives initial GENA topology state' );
 is( $player->zoneName(), 'Kitchen', 'parses the simulator room name' );
 is( $player->renderingControl()->getVolume(), 20, 'receives initial rendering-control state' );

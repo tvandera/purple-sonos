@@ -1,0 +1,23 @@
+FROM rust:slim-bookworm AS builder
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates curl git build-essential pkg-config libssl-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN rustup toolchain install nightly-2026-08-31 --profile minimal
+
+WORKDIR /src
+COPY . .
+ENV CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
+    CARGO_PROFILE_RELEASE_LTO=false \
+    CARGO_PROFILE_RELEASE_CODEGEN_UNITS=256 \
+    CARGO_BUILD_JOBS=1
+RUN cargo +nightly-2026-08-31 build --jobs 1 --locked --release --package fsonos-cli --bin fsonos --features sim
+
+FROM debian:bookworm-slim
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates python3 && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /src/target/release/fsonos /usr/local/bin/fsonos

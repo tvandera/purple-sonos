@@ -1,17 +1,12 @@
-{ pkgs, lib ? pkgs.lib }:
+{ pkgs, lib ? pkgs.lib, source ? ../../frankensonos }:
 
 let
-  src = pkgs.fetchFromGitHub {
-    owner = "Dicklesworthstone";
-    repo = "frankensonos";
-    rev = "099cfa84da4a02a203075f4cfb0e6cee888ceba5";
-    hash = "sha256-bY4KIvRKQfF65oqMfXh1k6Vzzbhg+zUQYCtmRma4/EE=";
-  };
+  src = source;
   rustOverlaySrc = pkgs.fetchFromGitHub {
     owner = "oxalica";
     repo = "rust-overlay";
-    rev = "5424e1e6dda30b0626935d2a03a6526db4858d60";
-    hash = "sha256-arni7i+yH5ZnkvAN9UotvhMml5+fZyXcMHpiOvI3WFY=";
+    rev = "6b29b8e8d3cc8ebda9342fbbcc7ac06eff58e2fb";
+    hash = "sha256-5V08BokWHSUU962Kcr/uSTWyy+1NqB7pjuyqjqXTqQU=";
   };
   rustPkgs = pkgs.extend (import rustOverlaySrc);
   toolchain = rustPkgs.rust-bin.nightly."2026-08-31".minimal;
@@ -43,7 +38,12 @@ rustPlatform.buildRustPackage {
   };
 
   cargoBuildFlags = [ "--package" "fsonos-cli" "--bin" "fsonos" "--features" "sim" ];
+  cargoBuildJobs = 1;
   nativeBuildInputs = [ pkgs.makeWrapper ];
+  CARGO_PROFILE_RELEASE_OPT_LEVEL = "1";
+  CARGO_PROFILE_RELEASE_LTO = "false";
+  CARGO_PROFILE_RELEASE_CODEGEN_UNITS = "16";
+  CARGO_BUILD_JOBS = "1";
   doCheck = false;
 
   installPhase = ''
