@@ -80,7 +80,8 @@ sub playerForID( $self, $id ) {
     return unless $rootid;
 
     # now find what player to contact based on _updateids
-    my ( $uuid, $version ) = @{ $self->{_updateids}->{$rootid} };
+    my ( $uuid, $version ) = $self->version($rootid);
+    return unless $uuid;
     my $player = $self->system()->player($uuid);
     return $player;
 }
