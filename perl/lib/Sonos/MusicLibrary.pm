@@ -94,6 +94,7 @@ sub fetchChildren( $self, $parentID ) {
     }
 
     my $player = $self->playerForID($parentID);
+    return () unless $player;
 
     my @items = $player->contentDirectory()->fetchByObjectID($parentID);
     $self->addItemsOnly(@items);
@@ -114,7 +115,7 @@ sub children( $self, $parent ) {
 
     $self->fetchChildren($parentid);
 
-    my @ids   = @{ $self->{_tree}->{$parentid} };
+    my @ids   = @{ $self->{_tree}->{$parentid} // [] };
     my @items = map { $self->{_items}->{$_} } @ids;
     @items = sort { $a->originalTrackNumber() <=> $b->originalTrackNumber() || fc( $a->title() ) cmp fc( $b->title() ) }
       @items;
