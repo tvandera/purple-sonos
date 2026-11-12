@@ -1,0 +1,27 @@
+services:
+  fsonos-sim:
+    build:
+      context: .
+      dockerfile: Dockerfile.fsonos-sim
+    volumes:
+      - ./simulator.py:/tests/simulator.py:ro
+    command: ["python3", "-u", "/tests/simulator.py"]
+    init: true
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/fsonos-ready"]
+      interval: 1s
+      timeout: 1s
+      retries: 30
+
+  sonod-test:
+    build:
+      context: ../../perl
+      dockerfile: ../docker/Dockerfile
+    init: true
+    network_mode: service:fsonos-sim
+    depends_on:
+      fsonos-sim:
+        condition: service_healthy
+    volumes:
+      - ./discovery.t:/tests/discovery.t:ro
+    command: ["perl", "/tests/discovery.t"]

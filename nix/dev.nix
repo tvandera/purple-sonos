@@ -4,6 +4,7 @@ let
   Sonos = pkgs.callPackage ./sonos.nix {
     perlPackages = pkgs.perlPackages;
   };
+  fsonosSim = pkgs.callPackage ./fsonos-sim.nix {};
   depsOnly = Sonos.propagatedBuildInputs;
 
 in
@@ -14,7 +15,7 @@ pkgs.mkShell {
   ];
 
   shellHook = ''
-    export PERL5LIB="$PWD/perl/lib''${PERL5LIB:+:$PERL5LIB}"
+    export PERL5LIB="$PWD/lib''${PERL5LIB:+:$PERL5LIB}"
     echo "Perl dev shell with Sonos dependencies"
   '';
 }

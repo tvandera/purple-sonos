@@ -80,7 +80,8 @@ sub playerForID( $self, $id ) {
     return unless $rootid;
 
     # now find what player to contact based on _updateids
-    my ( $uuid, $version ) = @{ $self->{_updateids}->{$rootid} };
+    my ( $uuid, $version ) = $self->version($rootid);
+    return unless $uuid;
     my $player = $self->system()->player($uuid);
     return $player;
 }
@@ -93,6 +94,7 @@ sub fetchChildren( $self, $parentID ) {
     }
 
     my $player = $self->playerForID($parentID);
+    return () unless $player;
 
     my @items = $player->contentDirectory()->fetchByObjectID($parentID);
     $self->addItemsOnly(@items);
@@ -113,7 +115,7 @@ sub children( $self, $parent ) {
 
     $self->fetchChildren($parentid);
 
-    my @ids   = @{ $self->{_tree}->{$parentid} };
+    my @ids   = @{ $self->{_tree}->{$parentid} // [] };
     my @items = map { $self->{_items}->{$_} } @ids;
     @items = sort { $a->originalTrackNumber() <=> $b->originalTrackNumber() || fc( $a->title() ) cmp fc( $b->title() ) }
       @items;
