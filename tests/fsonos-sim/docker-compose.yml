@@ -1,8 +1,8 @@
 services:
   fsonos-sim:
     build:
-      context: ../../../frankensonos
-      dockerfile: ../purple-sonos/tests/fsonos-sim/Dockerfile.fsonos-sim
+      context: .
+      dockerfile: Dockerfile.fsonos-sim
     volumes:
       - ./simulator.py:/tests/simulator.py:ro
     command: ["python3", "-u", "/tests/simulator.py"]

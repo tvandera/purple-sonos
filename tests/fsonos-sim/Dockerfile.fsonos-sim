@@ -1,18 +1,38 @@
-FROM rust:slim-bookworm AS builder
+FROM rust:slim-bookworm AS chef
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends ca-certificates curl git build-essential pkg-config libssl-dev && \
     rm -rf /var/lib/apt/lists/*
 
-RUN rustup toolchain install nightly-2026-08-31 --profile minimal
-
-WORKDIR /src
-COPY . .
 ENV CARGO_PROFILE_RELEASE_OPT_LEVEL=0 \
     CARGO_PROFILE_RELEASE_LTO=false \
     CARGO_PROFILE_RELEASE_CODEGEN_UNITS=256 \
+    CARGO_PROFILE_RELEASE_DEBUG=0 \
+    CARGO_PROFILE_RELEASE_INCREMENTAL=false \
     CARGO_BUILD_JOBS=1
-RUN cargo +nightly-2026-08-31 build --jobs 1 --locked --release --package fsonos-cli --bin fsonos --features sim
+
+RUN cargo install cargo-chef --version 0.1.78 --locked --jobs 1 && \
+    rustup toolchain install nightly-2026-08-31 --profile minimal
+
+WORKDIR /src
+
+FROM chef AS planner
+
+ADD https://github.com/tvandera/frankensonos/archive/refs/heads/main.tar.gz /tmp/frankensonos.tar.gz
+RUN tar -xzf /tmp/frankensonos.tar.gz --strip-components=1 && \
+    cargo +nightly-2026-08-31 chef prepare --bin fsonos --recipe-path recipe.json
+
+FROM chef AS builder
+
+COPY --from=planner /src/recipe.json recipe.json
+COPY --from=planner /src/vendor/ /src/vendor/
+ENV RUSTFLAGS="-Zthreads=1"
+RUN cargo +nightly-2026-08-31 chef cook --release --jobs 1 --locked \
+    --package fsonos-cli --bin fsonos --features sim --recipe-path recipe.json
+
+COPY --from=planner /src/ /src/
+RUN cargo +nightly-2026-08-31 build --jobs 1 --locked --release \
+    --package fsonos-cli --bin fsonos --features sim
 
 FROM debian:bookworm-slim
 
