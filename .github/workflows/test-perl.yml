@@ -5,39 +5,51 @@ on:
     branches: [ master, develop ]
     paths:
       - 'perl/**'
+      - '.devcontainer/Dockerfile'
       - '.github/workflows/test-perl.yml'
   pull_request:
     branches: [ master, develop ]
     paths:
       - 'perl/**'
+      - '.devcontainer/Dockerfile'
       - '.github/workflows/test-perl.yml'
 
 jobs:
   test:
-    name: Perl ${{ matrix.perl-version }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest ]
-        perl-version: [ '5.40' ]
+    name: Perl Tests
+    runs-on: ubuntu-latest
+    container:
+      image: perl:latest
+      options: >-
+        --user root
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Perl ${{ matrix.perl-version }}
-        uses: shogo82148/actions-setup-perl@v1
-        with:
-          perl-version: ${{ matrix.perl-version }}
-
-      - name: Install dependencies via cpanfile
-        working-directory: ./perl
+      - name: Install build tools and dependencies
         run: |
-          cpan App::cpanminus
-          cpanm --installdeps .
+          apt-get update
+          apt-get install -y --no-install-recommends build-essential curl libgd-dev locales nodejs npm
+          curl -fsSL "https://github.com/skaji/cpm/releases/download/v1.1.6/cpm" \
+              -o /usr/local/bin/cpm
+          chmod +x /usr/local/bin/cpm
+          cpm install --global Carton
+
+      - name: Cache Carton dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            perl/local
+            ~/.cpanm
+          key: carton-${{ runner.os }}-${{ hashFiles('perl/cpanfile.snapshot') }}
+          restore-keys: |
+            carton-${{ runner.os }}-
+
+      - name: Install Perl dependencies
+        working-directory: ./perl
+        run: carton install
 
       - name: Run tests
         working-directory: ./perl
-        run: |
-          perl -Ilib -e 'use Test::Harness; runtests(<t/*.t>)'
+        run: carton exec -- perl -Ilib -e 'use Test::Harness; runtests(<t/*.t>)'
