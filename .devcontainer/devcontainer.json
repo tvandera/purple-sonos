@@ -1,16 +1,17 @@
 {
   "name": "Perl Dev Container",
   "build": {
-    "dockerfile": "Dockerfile",
-    "context": ".."
+    "dockerfile": "../docker/Dockerfile",
+    "context": "..",
+    "target": "development"
   },
   "runArgs": [
     "--network=host"
   ],
   "remoteUser": "vanderaa",
-  "workspaceFolder": "/app",
+  "workspaceFolder": "/workspace",
   "mounts": [
-    "source=${localWorkspaceFolder},target=/app,type=bind,consistency=cached"
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached"
   ]
 }
 
