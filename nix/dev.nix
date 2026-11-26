@@ -12,6 +12,8 @@ pkgs.mkShell {
   buildInputs = [
     (pkgs.perl.withPackages (_: depsOnly))
     pkgs.nodejs
+    pkgs.act
+    pkgs.gh
   ];
 
   shellHook = ''
