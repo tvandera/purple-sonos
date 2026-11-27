@@ -1,8 +1,10 @@
 use strict;
 use warnings;
+use utf8;
 
 use File::Temp qw(tempfile);
-use Test::More tests => 9;
+use FindBin qw($Bin);
+use Test::More tests => 14;
 use Sonos::HTTP::Builder;
 use Sonos::HTTP::Template;
 use Sonos::System;
@@ -70,4 +72,27 @@ can_ok('Sonos::HTTP', qw(registerHandler validateRequest validateAction));
 
 	my $explicit_builder = Sonos::HTTP::Builder->new( $system, { zone => 'Kitchen' } );
 	is( $explicit_builder->qf('zone'), 'Kitchen', 'builder preserves an explicitly requested zone' );
+
+	local $coordinator->{name} = 'Living Room & "Café"';
+	is(
+		$builder->build_url_data()->{args}->{default_zone},
+		'zone=Living%20Room%20%26%20%22Caf%C3%A9%22&',
+		'URL builder encodes the default-zone argument'
+	);
+	is(
+		$explicit_builder->build_url_data()->{args}->{default_zone},
+		'zone=Living%20Room%20%26%20%22Caf%C3%A9%22&',
+		'default-zone argument is independent of the selected zone'
+	);
+	my $template = Sonos::HTTP::Template->new(
+		$system, "$Bin/../html/black/index.html", { mpath => 'A:ALBUM' }
+	);
+	my $output = $template->output();
+	like( $output, qr/var zone_arg = "";/, 'unselected zone remains empty in the page' );
+	like(
+		$output,
+		qr/var default_zone_arg = "zone=Living%20Room%20%26%20%22Caf%C3%A9%22&";/,
+		'page provides an escaped default-zone argument'
+	);
+	like( $output, qr/var music_arg = "mpath=A%3AALBUM&";/, 'page preserves the music query argument' );
 }

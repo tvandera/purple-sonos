@@ -109,6 +109,7 @@ sub build_url_data($self) {
     my %args     = map { $_ => $self->encode_arg($_) } @keys;
     my @filtered = grep !/action|rand|mpath|msearch|link/, ( keys %{ $self->qf() } );
     $args{"all"} = join "&", map { $self->encode_arg($_) } @filtered;
+    $args{"default_zone"} = "zone=" . uri_escape_utf8( $self->system()->defaultPlayer()->zoneName() ) . "&";
     return {
         "args"   => {%args},
         "values" => {%values},
